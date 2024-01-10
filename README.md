@@ -33,5 +33,5 @@ HYBRID MODEL INTEGRATION (WEIGHTED-FUSION)
 The recommendations from both the content-based (NN) and the collaborative filtering (SVD) techniques are merged or combined.
 To combine the recommendations from both filtering methods, a weighted fusion approach is employed. weights are assigned to the recommendations from the content-based filtering and collaborative filtering modules. 
 
-[Alt text](<assets/Hybrid filtering.png>)
+![Alt text](<assets/Hybrid filtering.png>)
 Figure 3: Hybrid recommendation approach flowchart for a food recommender system
