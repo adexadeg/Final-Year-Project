@@ -1,0 +1,49 @@
+from surprise import SVD
+from surprise import Dataset
+from surprise import Reader
+from surprise.model_selection import train_test_split
+from sklearn.neighbors import NearestNeighbors
+import numpy as np
+
+# Load your saved SVD collaborative model
+svd_model = SVD.load("trained_svd_model_file.pkl")
+
+# Load your saved nearest neighbor content-based model
+content_model = NearestNeighbors.load("model.pkl")
+
+# Load your dataset for collaborative filtering
+# Replace this with your own dataset and adjust the Reader configuration accordingly
+reader = Reader(rating_scale=(1, 5))
+data = Dataset.load_from_df([['AuthorName', 'RecipeId', 'Rating']], reader)
+
+# Split the dataset into training and testing sets
+trainset, testset = train_test_split(data, test_size=0.2)
+
+# Define weights for collaborative and content-based models
+collaborative_weight = 0.7
+content_weight = 0.3
+
+def hybrid_recommendation(user_id, item_id):
+    # Make predictions using the SVD collaborative model
+    collaborative_prediction = svd_model.predict(user_id, item_id).est
+    
+    # Find the k nearest neighbors in the content-based model
+    # You should adjust k based on your content-based model
+    k = 10
+    content_item = content_model.kneighbors(
+        ['Calories','FatContent','SaturatedFatContent','CholesterolContent','SodiumContent',
+        'CarbohydrateContent','FiberContent','SugarContent','ProteinContent'], n_neighbors=k)
+    
+    # Calculate the content-based score based on distance to neighbors
+    content_score = 1 / (1 + content_item[0].sum())
+    
+    # Combine predictions with weights
+    hybrid_score = (collaborative_weight * collaborative_prediction) + (content_weight * content_score)
+    
+    return hybrid_score
+
+# Example usage of the hybrid recommendation function
+user_id = "user_id"  # Replace with the user for whom you want to make recommendations
+item_id = "item_id"  # Replace with the item for which you want to make recommendations
+hybrid_score = hybrid_recommendation(user_id, item_id)
+print("Hybrid Score:", hybrid_score)
